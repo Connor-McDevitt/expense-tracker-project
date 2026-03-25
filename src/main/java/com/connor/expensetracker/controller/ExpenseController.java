@@ -1,5 +1,6 @@
 package com.connor.expensetracker.controller;
 
+import com.connor.expensetracker.dto.ExpenseSummaryDTO;
 import com.connor.expensetracker.model.Expense;
 import com.connor.expensetracker.service.ExpenseService;
 import org.springframework.web.bind.annotation.*;
@@ -53,5 +54,13 @@ public class ExpenseController {
     public String deleteExpense(@PathVariable Long id) {
         expenseService.deleteExpense(id);
         return "Expense deleted with id " + id;
+    }
+
+    @GetMapping("/user/{userId}/summary")
+    public List<ExpenseSummaryDTO> getMonthlySummary(
+            @PathVariable Long userId,
+            @RequestParam String month) {
+
+        return expenseService.getMonthlySummary(userId, month);
     }
 }

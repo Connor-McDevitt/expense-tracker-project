@@ -1,20 +1,28 @@
 package com.connor.expensetracker.service;
 
 import com.connor.expensetracker.model.Expense;
+import com.connor.expensetracker.repository.BudgetRepository;
 import com.connor.expensetracker.repository.ExpenseRepository;
 import org.springframework.stereotype.Service;
 import com.connor.expensetracker.dto.ExpenseDTO;
 
 import java.util.List;
 import java.util.Optional;
+import com.connor.expensetracker.dto.ExpenseSummaryDTO;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ExpenseService {
 
     private final ExpenseRepository expenseRepository;
 
-    public ExpenseService(ExpenseRepository expenseRepository) {
+    private final BudgetRepository budgetRepository;
+
+    public ExpenseService(ExpenseRepository expenseRepository,
+                          BudgetRepository budgetRepository) {
         this.expenseRepository = expenseRepository;
+        this.budgetRepository = budgetRepository;
     }
 
     public Expense createExpense(Expense expense) {
@@ -49,5 +57,35 @@ public class ExpenseService {
                 categoryName,
                 username
         );
+    }
+
+    public List<ExpenseSummaryDTO> getMonthlySummary(Long userId, String month) {
+
+        return expenseRepository.findAll().stream()
+                .filter(e -> e.getUser().getId().equals(userId))
+                .collect(Collectors.groupingBy(e -> e.getCategory()))
+                .entrySet()
+                .stream()
+                .map(entry -> {
+                    var category = entry.getKey();
+
+                    double totalSpent = entry.getValue()
+                            .stream()
+                            .mapToDouble(e -> e.getAmount())
+                            .sum();
+
+                    double budgetAmount = budgetRepository
+                            .findByUserIdAndCategoryIdAndMonth(userId, category.getId(), month)
+                            .map(b -> b.getAmount())
+                            .orElse(0.0);
+
+                    return new ExpenseSummaryDTO(
+                            category.getName(),
+                            totalSpent,
+                            budgetAmount,
+                            budgetAmount - totalSpent
+                    );
+                })
+                .toList();
     }
 }
