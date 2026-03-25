@@ -32,10 +32,11 @@ POST /categories<br>
 
 ### Then visit: 
 http://localhost:8080<br>
+and use *src/main/resources/Budget App Collection.postman_collection.json* in Postman to run requests
 ## Future Improvements<br>
 Budget tracking per category<br>
 PostgreSQL integration<br>
-Authentication & authorization (JWT)<br>
-Frontend UI (React)<br>
+Authentication & authorization<br>
+Frontend UI <br>
 ## Author<br>
 Connor McDevitt<br>
